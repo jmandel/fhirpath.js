@@ -59,101 +59,85 @@ return /******/ (function(modules) { // webpackBootstrap
 	var antlr4 = __webpack_require__(1);
 	var fhirpath = __webpack_require__(46);
 	var util = __webpack_require__(50);
-	var ex = "Patient.name.where($resource.a.b='v', c | e | f, a + bc.d.not())";
-
-	ex = "Patient.name.where(given='eve')";
-
-	var start = [{
-				resourceType: "Patient",
-				name: [{
-							given: ["eve", "anne"]
-				}, {
-							given: ["jenny", "eve"]
-				}]
-	}];
-
 	var coerce = {
-				boolean: function boolean(v) {
-							return v === true || util.isArray(v) && v[0] === true;
-				}
+	    boolean: function boolean(v) {
+	        console.log("coercing", v);
+	        if (v === false) return false;
+	        if (util.isArray(v)) return coerce.boolean(v[0]);
+	        return true;
+	    }
 	};
 
 	var functionBank = {
-				"$path": function $path(item, segment, recurse) {
-							if (item.resourceType && item.resourceType === segment) {
-										return item;
-							}
-							var segments = [segment];
-							var choice = segment.match(/\[x\]$/);
-							if (choice) {
-										segments = Object.keys(item).filter(function (k) {
-													return k.match(RegExp("^" + choice[1]));
-										});
-							}
-							return segments.flatMap(function (s) {
-										return item[s];
-							});
-				},
-				"$where": function $where(item, conditions) {
-							var keep = execute([item], conditions);
-							return coerce.boolean(keep) ? item : [];
-				},
-				"$constant": function $constant(_, val) {
-							return val;
-				}
+	    "$path": function $path(item, segment, recurse) {
+	        if (item.resourceType && item.resourceType === segment) {
+	            return item;
+	        }
+	        var segments = [segment];
+	        var choice = segment.match(/\[x\]$/);
+	        if (choice) {
+	            segments = Object.keys(item).filter(function (k) {
+	                return k.match(RegExp("^" + choice[1]));
+	            });
+	        }
+	        return segments.flatMap(function (s) {
+	            return item[s];
+	        });
+	    },
+	    "$where": function $where(item, conditions) {
+	        var keep = execute([item], conditions);
+	        console.log("keep", keep, coerce.boolean(keep));
+	        return coerce.boolean(keep) ? item : [];
+	    },
+	    "$constant": function $constant(_, val) {
+	        return val;
+	    }
 	};
 
 	var operatorBank = {
-				"=": function _(lhs, rhs) {
-							return lhs.filter(function (item) {
-										return item === rhs[0];
-							});
-				}
+	    "=": function _(lhs, rhs) {
+	        return lhs.filter(function (item) {
+	            return item === rhs[0];
+	        });
+	    }
 	};
 
 	Array.prototype.flatMap = function (lambda) {
-				return Array.prototype.concat.apply([], this.map(lambda));
+	    return Array.prototype.concat.apply([], this.map(lambda));
 	};
 
 	//ex = process.argv[2];
 
-	console.log("parsing", ex, ":");
-	var tree = fhirpath.parse(ex);
-	console.log("Done tree", JSON.stringify(tree, null, 2));
-
-	var result = execute(start, tree);
-	console.log("Result", result);
-
 	function execute(coll, tree) {
 
-				if (!util.isArray(tree[0])) {
-							console.log("No array, recurse", coll, tree);
-							return execute(coll, [tree]);
-				}
+	    if (!util.isArray(tree[0])) {
+	        console.log("No array, recurse", coll, tree);
+	        return execute(coll, [tree]);
+	    }
 
-				return tree.reduce(function (coll, cur) {
-							var fnName = cur[0];
-							var fn = functionBank[fnName];
-							if (fn) return coll.flatMap(function (item) {
-										return fn.apply(null, [item].concat(cur.slice(1)));
-							});
+	    return tree.reduce(function (coll, cur) {
+	        var fnName = cur[0];
+	        var fn = functionBank[fnName];
+	        if (fn) return coll.flatMap(function (item) {
+	            return fn.apply(null, [item].concat(cur.slice(1)));
+	        });
 
-							var op = operatorBank[fnName];
-							if (op) {
-										lhs = execute(coll, cur[1]);
-										rhs = execute(coll, cur[2]);
-										var ret = op(lhs, rhs);
-										console.log("op returnied", ret);
-										return ret;
-							}
-				}, coll);
+	        var op = operatorBank[fnName];
+	        if (op) {
+	            console.log("call pop", coll, cur[1]);
+	            lhs = execute(coll, cur[1]);
+	            rhs = execute(coll, cur[2]);
+	            var ret = op(lhs, rhs);
+	            console.log("op returnied", ret);
+	            return ret;
+	        }
+	    }, coll);
 	}
 
 	module.exports = function (resource, path) {
-				var tree = fhirpath.parse(path);
-				var result = execute([resource], tree);
-				return [tree, result];
-				gg;
+	    var tree = fhirpath.parse(path);
+	    var result = execute([resource], tree);
+	    return [tree, result];
 	};
 
 /***/ },
