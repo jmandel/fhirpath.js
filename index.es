@@ -44,7 +44,17 @@ var functionBank = {
     "$tail": (coll)=> coll.slice(1),
     "$item": resolveArguments((coll, i) => coll.slice(i,i+1)),
     "$skip": resolveArguments((coll, i) => coll.slice(i)),
-    "$take": resolveArguments((coll, i) => coll.slice(0,i))
+    "$take": resolveArguments((coll, i) => coll.slice(0,i)),
+    // TODO: Clarify what collections are accepted by substring
+    "$substring": resolveArguments((coll, start, count) => {
+        if (coll.length !== 1) return []
+        if (typeof coll[0] !== "string") return []
+
+        var input = coll[0]
+        var end = count !== undefined ? start + count : input.length
+        return [input.slice(start, end)]
+
+    })
 }
 
 var whenSingle = (fn)=>{
