@@ -22,7 +22,7 @@ expr returns [ret]:
         a=expr op=LOGIC b=expr {$ret= [$op.text, $a.ret, $b.ret]}|
         '(' expr ')' {$ret = [$expr.ret]}|
         predicate {$ret = $predicate.ret}|
-        fp_const {$ret=["$"+"constant", JSON.parse($fp_const.text)]};
+        fp_const {$ret = $fp_const.ret};
 
 predicate returns [ret]: {var ret = [];} item {ret.push($item.ret)} ('.' item {ret.push($item.ret)})*  {$ret = (ret.length === 1) ? ret[0] : ret};
 item returns [ret]: element recurse? {$ret = ["\$path",  $element.text, !!($recurse.text)]}|
@@ -41,10 +41,10 @@ param_list returns [ret]: {var ret = [];} expr {ret.push($expr.ret)} (',' expr {
 //    expr |
 //    expr '..' expr;
 
-fp_const: STRING |
-       '-'? NUMBER |
-       BOOL |
-       CONST;
+fp_const returns [ret]: STRING {$ret = ["$"+"constant",  $STRING.text.slice(1,-1)]} |
+       '-'? NUMBER  {$ret = ["$"+"constant", JSON.parse($NUMBER.text)]} |
+       BOOL {$ret = ["$"+"constant", JSON.parse($BOOL.text)]}|
+       CONST {$ret = ["$"+"lookup", "'"+$CONST.text+"'"]} ;
 
 
 // Lexical rules
