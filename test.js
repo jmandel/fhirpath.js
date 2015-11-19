@@ -1,16 +1,12 @@
 var pt = {
     resourceType: "Patient",
     birthDate: "2005",
-    name:[{
-	given:["eve", "anne"]
-    }, {
-	given:["jenny", "eve"]
-    }]
+    name:[{ given:["eve"]}]
 }
 
 var fp = require("./index")
-//ex = "Patient.name.where(given='eve') | Patient.birthDate";
-ex = "Patient.name"
+ex = "Patient.name.given |  Patient.name.given";
+
 results = fp(pt, ex);
 console.log("results")
 console.log(JSON.stringify(results[0]))

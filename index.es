@@ -51,7 +51,6 @@ Array.prototype.flatMap = function(lambda) {
 function execute(coll, tree){
 
     if (!util.isArray(tree[0])){
-        console.log("No array, recurse", coll, tree)
         return execute(coll, [tree]);
     }
 
@@ -64,8 +63,8 @@ function execute(coll, tree){
         var op = operatorBank[fnName];
         if (op){
             console.log("call pop", coll, cur[1])
-            lhs = execute(coll, cur[1]);
-            rhs = execute(coll, cur[2]);
+            var lhs = execute(coll, cur[1]);
+            var rhs = execute(coll, cur[2]);
             var ret = op(lhs, rhs);
             console.log("op returnied", ret);
             return ret;
