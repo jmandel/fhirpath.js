@@ -6,7 +6,7 @@ var pt = {
 
 var fp = require("./index")
 
-var ex = "Patient.name.given.take(1).substring(1)";
+var ex = "Patient.name.where(given='efve').empty()";
 
 var results = fp(pt, ex);
 console.log("results")

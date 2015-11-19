@@ -3,11 +3,18 @@ var fhirpath = require('./fhirpath');
 var util = require('util');
 var coerce = {
     boolean: function(v){
-        console.log("coercing", v)
-        if (v === false) return false;
-        if (util.isArray(v))
-            return coerce.boolean(v[0]);
-        return true;
+        if (!util.isArray(v)) {
+            throw new Error("can't boolean coerce nonarray"  + v)
+        }
+        if (v.length === 1 && (v[0] === true || v[0] === false)){
+            return v[0]
+        }
+
+        if (v.length === 0) {
+            return false;
+        }
+
+        return true
     }
 }
 
@@ -33,11 +40,11 @@ var functionBank = {
     }),
     "$where": applyToEach((item, conditions) => {
         var keep = execute([item], conditions)
-        console.log("keep", keep, coerce.boolean(keep))
+        console.log("keep", item, conditions, keep, coerce.boolean(keep))
         return coerce.boolean(keep) ? item : [];
     }),
     "$constant": (_, val)=>{
-        return val
+        return [val]
     },
     "$first": (coll)=> coll.slice(0,1),
     "$last": (coll)=> coll.slice(-1),
@@ -54,7 +61,8 @@ var functionBank = {
         var end = count !== undefined ? start + count : input.length
         return [input.slice(start, end)]
 
-    })
+    }),
+    "$empty": (coll)=>coll.length === 0
 }
 
 var whenSingle = (fn)=>{
@@ -65,9 +73,7 @@ var whenSingle = (fn)=>{
 }
 
 var operatorBank = {
-    "=": (lhs, rhs) => {
-        return lhs.filter(item=>{return item === rhs[0];})
-    },
+    "=": (lhs, rhs) => lhs.filter(item=>item === rhs[0]),
     "|": (lhs, rhs) => lhs.concat(rhs),
     "+": whenSingle((lhs, rhs)=>{
         if (typeof lhs !== typeof rhs) return [];
