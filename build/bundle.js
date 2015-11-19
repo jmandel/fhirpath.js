@@ -6441,7 +6441,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	Recognizer.prototype.addErrorListener = function(listener) {
 	    this._listeners.push(listener);
-	    console.log("So ilstenrs", this._listeners)
 	};
 
 	Recognizer.prototype.removeErrorListeners = function() {
@@ -6527,8 +6526,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	Recognizer.prototype.getErrorListenerDispatch = function() {
-	  console.log("GetErrDispatch", this._listeners)
-	  console.trace();
 	    return new ProxyErrorListener(this._listeners);
 	};
 
@@ -12665,7 +12662,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	exports.Parser = Parser;
-
 
 /***/ },
 /* 46 */
