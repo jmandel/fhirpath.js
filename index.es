@@ -35,6 +35,14 @@ var resolveArguments = (fn) => (coll, ...rest) => {
     return fn.apply(null, [coll].concat(rest.map(i => execute(coll, i))))
 }
 
+var allPaths = (item)=>[item]
+.concat(util.isArray(item) ? item.flatMap(allPaths) : [])
+.concat( typeof item === 'object' && !util.isArray(item)?
+        Object
+        .keys(item)
+        .reduce((coll, k)=> coll.concat(allPaths(item[k])) , []) : []
+       )
+
 var functionBank = {
     "$path": applyToEach((item, segment, recurse)=>{
         if (item.resourceType && item.resourceType === segment){
@@ -46,6 +54,14 @@ var functionBank = {
             segments = Object.keys(item).filter(k=>k.match(RegExp("^"+choice[1])))
         }
         return segments.flatMap(s=>item[s]).filter(x=> !!x)
+    }),
+    "$axis": applyToEach((item, axis)=>{
+        if (axis === "*")
+            return (typeof item === "object") ? 
+                Object.keys(item).flatMap(s=>item[s]).filter(x=> !!x) : item
+        if (axis === "**")
+            return allPaths(item).slice(1)
+
     }),
     "$where": applyToEach((item, conditions) =>
         coerce.boolean(execute([item], conditions)) ? [item] : []
