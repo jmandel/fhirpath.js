@@ -10,7 +10,7 @@ var pt = {
 
 var fp = require("./index")
 //ex = "Patient.name.where(given='eve') | Patient.birthDate";
-ex = "Patient.name["
+ex = "Patient.name"
 results = fp(pt, ex);
 console.log("results")
 console.log(JSON.stringify(results[0]))

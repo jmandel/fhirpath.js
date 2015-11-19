@@ -74,7 +74,6 @@ function execute(coll, tree){
 
 }
 
-
 module.exports = (resource, path) => {
     var tree = fhirpath.parse(path);
     var result = execute([resource], tree);
