@@ -15,6 +15,10 @@ var applyToEach = (fn) => (coll, ...rest) => {
     return coll.flatMap(item =>fn.apply(null, [item].concat(rest)))
 }
 
+var resolveArguments = (fn) => (coll, ...rest) => {
+    return fn.apply(null, [coll].concat(rest.map(i => execute(coll, i))))
+}
+
 var functionBank = {
     "$path": applyToEach((item, segment, recurse)=>{
         if (item.resourceType && item.resourceType === segment){
@@ -38,11 +42,9 @@ var functionBank = {
     "$first": (coll)=> coll.slice(0,1),
     "$last": (coll)=> coll.slice(-1),
     "$tail": (coll)=> coll.slice(1),
-    "$item": (coll, iExpression) => {
-        var i = execute(coll, iExpression)
-        console.log("$item get", iExpression, i)
-        return coll.slice(i,i+1)
-    }
+    "$item": resolveArguments((coll, i) => coll.slice(i,i+1)),
+    "$skip": resolveArguments((coll, i) => coll.slice(i)),
+    "$take": resolveArguments((coll, i) => coll.slice(0,i))
 }
 
 var whenSingle = (fn)=>{

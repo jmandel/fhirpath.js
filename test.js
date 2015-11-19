@@ -6,7 +6,7 @@ var pt = {
 
 var fp = require("./index")
 
-var ex = "Patient.name.given.item(0) | 14";
+var ex = "Patient.name.given.take(1) | 14";
 
 var results = fp(pt, ex);
 console.log("results")
