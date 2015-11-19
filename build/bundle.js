@@ -99,6 +99,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return lhs.filter(function (item) {
 	            return item === rhs[0];
 	        });
+	    },
+	    "|": function _(lhs, rhs) {
+	        return lhs.concat(rhs);
 	    }
 	};
 
@@ -149,7 +152,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.tree = __webpack_require__(36);
 	exports.error = __webpack_require__(37);
 	exports.Token = __webpack_require__(6).Token;
-	exports.CommonToken = __webpack_require__(6).CommonToken;
+	exports.CommonToken = __webpack_require__(6).Token;
 	exports.InputStream = __webpack_require__(40).InputStream;
 	exports.FileStream = __webpack_require__(41).FileStream;
 	exports.CommonTokenStream = __webpack_require__(43).CommonTokenStream;
@@ -2687,7 +2690,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		if (ctx === PredictionContext.EMPTY) {
 			return PredictionContext.EMPTY;
 		}
-		var existing = this.cache[ctx] || null;
+		var existing = this.cache[ctx];
 		if (existing !== null) {
 			return existing;
 		}
@@ -6430,7 +6433,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	Recognizer.prototype.checkVersion = function(toolVersion) {
-	    var runtimeVersion = "4.5.1";
+	    var runtimeVersion = "4.5";
 	    if (runtimeVersion!==toolVersion) {
 	        console.log("ANTLR runtime and generated code versions disagree: "+runtimeVersion+"!="+toolVersion);
 	    }
@@ -11402,9 +11405,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	//  when you construct the object.
 	// 
 	var InputStream = __webpack_require__(40).InputStream;
-	var isNodeJs = typeof window === 'undefined';
-	var fs = isNodeJs ? __webpack_require__(42) : null;
-
+	try {
+		var fs = __webpack_require__(42);
+	} catch(ex) {
+		// probably running from browser, no "Node.js/fs" makes sense 
+	}
+		
 	function FileStream(fileName) {
 		var data = fs.readFileSync(fileName, "utf8");
 		InputStream.call(this, data);
@@ -12669,13 +12675,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	  listener: __webpack_require__(49).fhirpathListener
 	};
 
+
+	var errors;
+	ErrorListener.prototype = Object.create(antlr4.error.ErrorListener.prototype);
+	ErrorListener.prototype.constructor = ErrorListener;
+	ErrorListener.prototype.syntaxError = function(rec, sym, line, col, msg, e) {
+	  this.errors.push(msg);
+	};
+
 	fhirpath.parse = function(input){
+	  errors = []
 	  var chars = new antlr4.InputStream(input);
 	  var lexer = new fhirpath.lexer(chars)
 	  var tokens  = new antlr4.CommonTokenStream(lexer);
 	  var parser = new fhirpath.parser(tokens);
 	  parser.buildParseTrees = true;
+
+	  var listener = new ErrorListener(errors);
+	  parser.removeErrorListeners();
+	  parser.addErrorListener(listener);
+
 	  var tree = parser.expr();
+	  if (errors.lenght > 0) {
+	    var e = new Error();
+	    e.parseErrors = errors;
+	    throw e;
+	  }
 	  return tree.ret;
 	}
 

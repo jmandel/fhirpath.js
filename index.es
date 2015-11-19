@@ -36,6 +36,9 @@ var functionBank = {
 var operatorBank = {
     "=": (lhs, rhs) => {
         return lhs.filter(item=>{return item === rhs[0];})
+    },
+    "|": (lhs, rhs) => {
+        return lhs.concat(rhs);
     }
 }
 

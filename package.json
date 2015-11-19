@@ -9,6 +9,7 @@
   "author": "Josh Mandel",
   "license": "Apache-2.0",
   "devDependencies": {
+    "antlr4": "^4.5.2",
     "babel-cli": "^6.2.0",
     "babel-loader": "^6.2.0",
     "babel-polyfill": "^6.2.0",
