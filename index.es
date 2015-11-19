@@ -107,7 +107,7 @@ var whenSingle = (fn)=> (lhs, rhs) => {
     }
 
 var operatorBank = {
-    "=": (lhs, rhs) => lhs.filter(item=>item === rhs[0]),
+    "=": (lhs, rhs) => [JSON.stringify(lhs)===JSON.stringify(rhs)],
     "|": (lhs, rhs) => lhs.concat(rhs),
     "+": whenSingle((lhs, rhs)=>{
         if (typeof lhs !== typeof rhs) return []
