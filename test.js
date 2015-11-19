@@ -2,14 +2,14 @@ var pt = {
     resourceType: "Patient",
     birthDate: "2005",
     name:[
-      { given:["eve", "aar"]},
-      { given: ["eve"]}
+      { given:["beve", "aar", "eve"]},
+      { given: ["steve"]}
     ]
 }
 
 var fp = require("./index")
 
-var ex = "Patient.name.all(given='eve')";
+var ex = "Patient.name.any(given='eve')";
 
 var results = fp(pt, ex);
 console.log("results")

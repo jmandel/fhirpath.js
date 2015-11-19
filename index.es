@@ -64,12 +64,10 @@ var functionBank = {
     }),
     "$empty": (coll)=>[coll.length === 0],
     "$not": (coll) => [!coerce.boolean(coll)],
-    "$all": (coll, conditions) => {
-        var matches = functionBank.$where(coll, conditions)
-        console.log("all matches? ", matches, coll)
-        return [matches.length === coll.length]
-
-    }
+    "$all": (coll, conditions) =>
+        [functionBank.$where(coll, conditions).length === coll.length],
+    "$any": (coll, conditions) =>
+        [functionBank.$where(coll, conditions).length > 0]
 }
 
 var whenSingle = (fn)=>{
