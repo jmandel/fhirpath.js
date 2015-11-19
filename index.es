@@ -36,7 +36,13 @@ var functionBank = {
         return val
     },
     "$first": (coll)=> coll.slice(0,1),
-   "$last": (coll)=> coll.slice(-1)
+    "$last": (coll)=> coll.slice(-1),
+    "$tail": (coll)=> coll.slice(1),
+    "$item": (coll, iExpression) => {
+        var i = execute(coll, iExpression)
+        console.log("$item get", iExpression, i)
+        return coll.slice(i,i+1)
+    }
 }
 
 var whenSingle = (fn)=>{
