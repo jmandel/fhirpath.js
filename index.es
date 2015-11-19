@@ -63,7 +63,13 @@ var functionBank = {
 
     }),
     "$empty": (coll)=>[coll.length === 0],
-    "$not": (coll) => [!coerce.boolean(coll)]
+    "$not": (coll) => [!coerce.boolean(coll)],
+    "$all": (coll, conditions) => {
+        var matches = functionBank.$where(coll, conditions)
+        console.log("all matches? ", matches, coll)
+        return [matches.length === coll.length]
+
+    }
 }
 
 var whenSingle = (fn)=>{

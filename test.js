@@ -1,12 +1,15 @@
 var pt = {
     resourceType: "Patient",
     birthDate: "2005",
-    name:[{ given:["eve", "aar"]}]
+    name:[
+      { given:["eve", "aar"]},
+      { given: ["eve"]}
+    ]
 }
 
 var fp = require("./index")
 
-var ex = "Patient.name.where(given='efve').empty().not().not()";
+var ex = "Patient.name.all(given='eve')";
 
 var results = fp(pt, ex);
 console.log("results")
