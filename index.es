@@ -2,6 +2,15 @@ var antlr4 = require('antlr4');
 var fhirpath = require('./fhirpath');
 var util = require('util');
 var coerce = {
+    integer: function(v){
+        if (!util.isArray(v)) {
+            throw new Error("can't boolean coerce nonarray"  + v)
+        }
+        if (v.length !== 1){
+            return NaN
+        }
+        return parseInt(v[0])
+    },
     boolean: function(v){
         if (!util.isArray(v)) {
             throw new Error("can't boolean coerce nonarray"  + v)
@@ -67,7 +76,13 @@ var functionBank = {
     "$all": (coll, conditions) =>
         [functionBank.$where(coll, conditions).length === coll.length],
     "$any": (coll, conditions) =>
-        [functionBank.$where(coll, conditions).length > 0]
+        [functionBank.$where(coll, conditions).length > 0],
+    "$count": (coll) => [coll.length],
+    // TODO how does asInteger convert "5.6", or *numbers* e.g. from count()?
+    "$asInteger": resolveArguments((coll)=> {
+        var val = coerce.integer(coll)
+        return isNaN(val) ? [] : [val]
+    })
 }
 
 var whenSingle = (fn)=>{
