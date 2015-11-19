@@ -20,7 +20,7 @@ expr returns [ret]:
         a=expr op=('|' | '&') b=expr {$ret= [$op.text, $a.ret, $b.ret]}|
         a=expr op=COMP b=expr {$ret= [$op.text, $a.ret, $b.ret]}|
         a=expr op=LOGIC b=expr {$ret= [$op.text, $a.ret, $b.ret]}|
-        '(' expr ')' {$ret = [$expr.ret]}|
+        '(' a=expr ')' {$ret = $a.ret}|
         predicate {$ret = $predicate.ret}|
         fp_const {$ret = $fp_const.ret};
 

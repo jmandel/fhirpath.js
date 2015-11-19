@@ -39,7 +39,6 @@ fhirpath.parse = function(input){
 
 
   var tree = parser.expr();
-  console.log("Tree done wiht", errors)
   if (errors.length > 0) {
     var e = new Error();
     e.errors = errors;
