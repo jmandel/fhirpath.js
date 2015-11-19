@@ -12715,7 +12715,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  console.log("Tree done wiht", errors)
 	  if (errors.length > 0) {
 	    var e = new Error();
-	    e.parseErrors = errors;
+	    e.errors = errors;
 	    throw e;
 	  }
 	  return tree.ret;
