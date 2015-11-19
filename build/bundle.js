@@ -12689,7 +12689,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	ErrorListener.prototype = Object.create(antlr4.error.ErrorListener.prototype);
 	ErrorListener.prototype.constructor = ErrorListener;
 	ErrorListener.prototype.syntaxError = function(rec, sym, line, col, msg, e) {
-	  this.errors.push(msg);
+	  this.errors.push([rec, sym, line, col, msg, e]);
 	};
 
 	fhirpath.parse = function(input){
