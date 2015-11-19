@@ -6,7 +6,7 @@ var pt = {
 
 var fp = require("./index")
 
-var ex = "Patient.name.where(given='efve').empty()";
+var ex = "Patient.name.where(given='efve').empty().not().not()";
 
 var results = fp(pt, ex);
 console.log("results")

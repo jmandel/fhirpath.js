@@ -62,7 +62,8 @@ var functionBank = {
         return [input.slice(start, end)]
 
     }),
-    "$empty": (coll)=>coll.length === 0
+    "$empty": (coll)=>[coll.length === 0],
+    "$not": (coll) => [!coerce.boolean(coll)]
 }
 
 var whenSingle = (fn)=>{
