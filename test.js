@@ -9,7 +9,7 @@ var pt = {
 
 var fp = require("./index")
 
-var ex = "Patient.name.where(given=family)"
+var ex = "name.**"
 
 var results = fp(pt, ex);
 console.log("results")
