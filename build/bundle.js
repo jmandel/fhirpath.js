@@ -87,6 +87,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	};
 
+	Array.prototype.flatMap = function (lambda) {
+	    return Array.prototype.concat.apply([], this.map(lambda));
+	};
+
 	var applyToEach = function applyToEach(fn) {
 	    return function (coll) {
 	        for (var _len = arguments.length, rest = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -106,9 +110,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 
 	        return fn.apply(null, [coll].concat(rest.map(function (i) {
-	            return execute(coll, i);
+	            return evaluate(coll, i);
 	        })));
 	    };
+	};
+
+	var uniqueValueMap = function uniqueValueMap(rows) {
+	    return rows.reduce(function (all, val) {
+	        all[JSON.stringify(val)] = true;
+	        return all;
+	    }, {});
+	};
+
+	var countUniqueValues = function countUniqueValues(rows) {
+	    return Object.keys(uniqueValueMap(rows)).length;
 	};
 
 	var allPaths = function allPaths(item) {
@@ -144,7 +159,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (axis === "**") return allPaths(item).slice(1);
 	    }),
 	    "$where": applyToEach(function (item, conditions) {
-	        return coerce.boolean(execute([item], conditions)) ? [item] : [];
+	        return coerce.boolean(evaluate([item], conditions)) ? [item] : [];
 	    }),
 	    "$constant": function $constant(_, val) {
 	        return [val];
@@ -190,11 +205,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	    "$count": function $count(coll) {
 	        return [coll.length];
 	    },
+	    "$lookup": function $lookup(_, tag) {
+	        return [lookup(tag)];
+	    },
+
 	    // TODO how does asInteger convert "5.6", or *numbers* e.g. from count()?
 	    "$asInteger": resolveArguments(function (coll) {
 	        var val = coerce.integer(coll);
 	        return isNaN(val) ? [] : [val];
-	    })
+	    }),
+	    "$distinct": function $distinct(coll) {
+	        for (var _len3 = arguments.length, rest = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+	            rest[_key3 - 1] = arguments[_key3];
+	        }
+
+	        var ret = coll.length === countUniqueValues(coll.map(function (item) {
+	            return rest.map(function (path) {
+	                return evaluate([item], path);
+	            });
+	        }));
+	        console.log("distinct", coll.length, ret);
+	    }
 	};
 
 	// TODO startsWith probably needs an argument
@@ -209,6 +240,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	var operatorBank = {
 	    "=": function _(lhs, rhs) {
 	        return [JSON.stringify(lhs) === JSON.stringify(rhs)];
+	    },
+	    "!=": function _(lhs, rhs) {
+	        return operatorBank["="](lhs, rhs).map(function (x) {
+	            return !x;
+	        });
 	    },
 	    "|": function _(lhs, rhs) {
 	        return lhs.concat(rhs);
@@ -233,37 +269,86 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 	    "xor": function xor(lhs, rhs) {
 	        return [coerce.boolean(lhs) !== coerce.boolean(rhs)];
-	    }
-	};
-
-	Array.prototype.flatMap = function (lambda) {
-	    return Array.prototype.concat.apply([], this.map(lambda));
+	    },
+	    "in": function _in(lhs, rhs) {
+	        var lhsMap = uniqueValueMap(lhs);
+	        var rhsMap = uniqueValueMap(rhs);
+	        return [Object.keys(lhsMap).every(function (k) {
+	            return k in rhsMap;
+	        })];
+	    },
+	    "~": function _(lhs, rhs) {
+	        return [JSON.stringify(lhs.map(JSON.stringify).sort()) === JSON.stringify(rhs.map(JSON.stringify).sort())];
+	    },
+	    "!~": function _(lhs, rhs) {
+	        return operatorBank["~"](lhs, rhs).map(function (x) {
+	            return !x;
+	        });
+	    },
+	    ">": whenSingle(function (lhs, rhs) {
+	        return [lhs[0] > rhs[0]];
+	    }),
+	    "<": whenSingle(function (lhs, rhs) {
+	        return [lhs[0] < rhs[0]];
+	    }),
+	    ">=": whenSingle(function (lhs, rhs) {
+	        return [lhs[0] >= rhs[0]];
+	    }),
+	    "<=": whenSingle(function (lhs, rhs) {
+	        return [lhs[0] <= rhs[0]];
+	    })
 	};
 
 	//ex = process.argv[2];
 
-	function execute(coll, tree) {
+	function evaluate(coll, tree) {
 
 	    if (!util.isArray(tree[0])) {
-	        return execute(coll, [tree]);
+	        return evaluate(coll, [tree]);
 	    }
 
 	    return tree.reduce(function (coll, cur) {
 	        if (util.isArray(cur[0])) {
-	            return [coll].concat(execute(coll, cur[0]));
+	            return [coll].concat(evaluate(coll, cur[0]));
 	        }
+
 	        var fnName = cur[0];
 	        var fn = functionBank[fnName];
-	        if (fn) return fn.apply(null, [coll].concat(cur.slice(1)));
+	        if (fn) {
+	            return fn.apply(null, [coll].concat(cur.slice(1)));
+	        }
 
-	        return operatorBank[fnName](execute(coll, cur[1]), execute(coll, cur[2]));
+	        console.log("exec op", fnName, cur[1], cur[2]);
+	        return operatorBank[fnName](evaluate(coll, cur[1]), evaluate(coll, cur[2]));
 	    }, coll);
 	}
 
-	module.exports = function (resource, path) {
-	    var tree = fhirpath.parse(path);
-	    var result = execute([resource], tree);
-	    return [tree, result];
+	var lookupTable = {
+	    "sct": "http://snomed.info/sct",
+	    "loinc": "http://loinc.org",
+	    "ucum": "http://unitsofmeasure.org",
+	    "vs-": "http://hl7.org/fhir/ValueSet/",
+	    "ext-": "http://hl7.org/fhir/StructureDefinition/"
+	};
+
+	var lookup = function lookup(tag) {
+	    if (lookupTable[tag]) {
+	        return lookupTable[tag];
+	    }
+
+	    var m = tag.match(/(.*?-)(.*)/);
+	    if (m) {
+	        return lookupTable[m[1]] + m[2];
+	    }
+
+	    throw new Error("Undefined lookup tag: %" + tag);
+	};
+
+	var parse = module.exports.parse = function (path) {
+	    return fhirpath.parse(path);
+	};
+	module.exports.evaluate = function (resource, path) {
+	    return evaluate([resource], parse(path));
 	};
 
 /***/ },
@@ -14340,7 +14425,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.enterOuterAlt(localctx, 4);
 	            this.state = 159;
 	            localctx._CONST = this.match(fhirpathParser.CONST);
-	            localctx.ret = ["$"+"lookup", "'"+(localctx._CONST===null ? null : localctx._CONST.text)+"'"]
+	            localctx.ret = ["$"+"lookup", (localctx._CONST===null ? null : localctx._CONST.text).slice(1)]
 	            break;
 	        default:
 	            throw new antlr4.error.NoViableAltException(this);
