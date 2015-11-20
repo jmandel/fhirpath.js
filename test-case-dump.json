@@ -1,0 +1,842 @@
+[
+  {
+    "start": {
+      "resourceType": "Patient",
+      "birthDate": "2005",
+      "name": [
+        {
+          "given": [
+            "beve",
+            "ave",
+            "eve"
+          ],
+          "family": [
+            "15.9"
+          ]
+        },
+        {
+          "given": [
+            "eve",
+            "other"
+          ],
+          "family": [
+            "other",
+            "eve"
+          ]
+        },
+        {
+          "given": [
+            "ever",
+            "other"
+          ],
+          "family": [
+            "aeve",
+            "other"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "c"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "c"
+          ]
+        },
+        {
+          "given": [
+            "http://loinc.org"
+          ]
+        }
+      ]
+    },
+    "path": "Patient.name.distinct(given)",
+    "result": {
+      "parse": [
+        [
+          "$path",
+          "Patient",
+          false
+        ],
+        [
+          "$path",
+          "name",
+          false
+        ],
+        [
+          "$distinct",
+          [
+            "$path",
+            "given",
+            false
+          ]
+        ]
+      ]
+    }
+  },
+  {
+    "start": {
+      "resourceType": "Patient",
+      "birthDate": "2005",
+      "name": [
+        {
+          "given": [
+            "beve",
+            "ave",
+            "eve"
+          ],
+          "family": [
+            "15.9"
+          ]
+        },
+        {
+          "given": [
+            "eve",
+            "other"
+          ],
+          "family": [
+            "other",
+            "eve"
+          ]
+        },
+        {
+          "given": [
+            "ever",
+            "other"
+          ],
+          "family": [
+            "aeve",
+            "other"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "c"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "c"
+          ]
+        },
+        {
+          "given": [
+            "http://loinc.org"
+          ]
+        }
+      ]
+    },
+    "path": "Patient.name.distinct(family)",
+    "result": {
+      "parse": [
+        [
+          "$path",
+          "Patient",
+          false
+        ],
+        [
+          "$path",
+          "name",
+          false
+        ],
+        [
+          "$distinct",
+          [
+            "$path",
+            "family",
+            false
+          ]
+        ]
+      ]
+    }
+  },
+  {
+    "start": {
+      "resourceType": "Patient",
+      "birthDate": "2005",
+      "name": [
+        {
+          "given": [
+            "beve",
+            "ave",
+            "eve"
+          ],
+          "family": [
+            "15.9"
+          ]
+        },
+        {
+          "given": [
+            "eve",
+            "other"
+          ],
+          "family": [
+            "other",
+            "eve"
+          ]
+        },
+        {
+          "given": [
+            "ever",
+            "other"
+          ],
+          "family": [
+            "aeve",
+            "other"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "c"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "c"
+          ]
+        },
+        {
+          "given": [
+            "http://loinc.org"
+          ]
+        }
+      ]
+    },
+    "path": "Patient.name.distinct(given, family)",
+    "result": {
+      "parse": [
+        [
+          "$path",
+          "Patient",
+          false
+        ],
+        [
+          "$path",
+          "name",
+          false
+        ],
+        [
+          "$distinct",
+          [
+            "$path",
+            "given",
+            false
+          ],
+          [
+            "$path",
+            "family",
+            false
+          ]
+        ]
+      ]
+    }
+  },
+  {
+    "start": {
+      "resourceType": "Patient",
+      "birthDate": "2005",
+      "name": [
+        {
+          "given": [
+            "beve",
+            "ave",
+            "eve"
+          ],
+          "family": [
+            "15.9"
+          ]
+        },
+        {
+          "given": [
+            "eve",
+            "other"
+          ],
+          "family": [
+            "other",
+            "eve"
+          ]
+        },
+        {
+          "given": [
+            "ever",
+            "other"
+          ],
+          "family": [
+            "aeve",
+            "other"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "c"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "c"
+          ]
+        },
+        {
+          "given": [
+            "http://loinc.org"
+          ]
+        }
+      ]
+    },
+    "path": "Patient.given",
+    "result": {
+      "parse": [
+        [
+          "$path",
+          "Patient",
+          false
+        ],
+        [
+          "$path",
+          "given",
+          false
+        ]
+      ],
+      "evaluate": []
+    }
+  },
+  {
+    "start": {
+      "resourceType": "Patient",
+      "birthDate": "2005",
+      "name": [
+        {
+          "given": [
+            "beve",
+            "ave",
+            "eve"
+          ],
+          "family": [
+            "15.9"
+          ]
+        },
+        {
+          "given": [
+            "eve",
+            "other"
+          ],
+          "family": [
+            "other",
+            "eve"
+          ]
+        },
+        {
+          "given": [
+            "ever",
+            "other"
+          ],
+          "family": [
+            "aeve",
+            "other"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "c"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "c"
+          ]
+        },
+        {
+          "given": [
+            "http://loinc.org"
+          ]
+        }
+      ]
+    },
+    "path": "Patient.name.where('eve' in given)",
+    "result": {
+      "parse": [
+        [
+          "$path",
+          "Patient",
+          false
+        ],
+        [
+          "$path",
+          "name",
+          false
+        ],
+        [
+          "$where",
+          [
+            "in",
+            [
+              "$constant",
+              "eve"
+            ],
+            [
+              "$path",
+              "given",
+              false
+            ]
+          ]
+        ]
+      ],
+      "evaluate": [
+        {
+          "given": [
+            "beve",
+            "ave",
+            "eve"
+          ],
+          "family": [
+            "15.9"
+          ]
+        },
+        {
+          "given": [
+            "eve",
+            "other"
+          ],
+          "family": [
+            "other",
+            "eve"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "start": {
+      "resourceType": "Patient",
+      "birthDate": "2005",
+      "name": [
+        {
+          "given": [
+            "beve",
+            "ave",
+            "eve"
+          ],
+          "family": [
+            "15.9"
+          ]
+        },
+        {
+          "given": [
+            "eve",
+            "other"
+          ],
+          "family": [
+            "other",
+            "eve"
+          ]
+        },
+        {
+          "given": [
+            "ever",
+            "other"
+          ],
+          "family": [
+            "aeve",
+            "other"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "c"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "c"
+          ]
+        },
+        {
+          "given": [
+            "http://loinc.org"
+          ]
+        }
+      ]
+    },
+    "path": "Patient.name.where(given ~ family)",
+    "result": {
+      "parse": [
+        [
+          "$path",
+          "Patient",
+          false
+        ],
+        [
+          "$path",
+          "name",
+          false
+        ],
+        [
+          "$where",
+          [
+            "~",
+            [
+              "$path",
+              "given",
+              false
+            ],
+            [
+              "$path",
+              "family",
+              false
+            ]
+          ]
+        ]
+      ],
+      "evaluate": [
+        {
+          "given": [
+            "eve",
+            "other"
+          ],
+          "family": [
+            "other",
+            "eve"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "start": {
+      "resourceType": "Patient",
+      "birthDate": "2005",
+      "name": [
+        {
+          "given": [
+            "beve",
+            "ave",
+            "eve"
+          ],
+          "family": [
+            "15.9"
+          ]
+        },
+        {
+          "given": [
+            "eve",
+            "other"
+          ],
+          "family": [
+            "other",
+            "eve"
+          ]
+        },
+        {
+          "given": [
+            "ever",
+            "other"
+          ],
+          "family": [
+            "aeve",
+            "other"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "c"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "c"
+          ]
+        },
+        {
+          "given": [
+            "http://loinc.org"
+          ]
+        }
+      ]
+    },
+    "path": "Patient.name.where(given !~ family)",
+    "result": {
+      "parse": [
+        [
+          "$path",
+          "Patient",
+          false
+        ],
+        [
+          "$path",
+          "name",
+          false
+        ],
+        [
+          "$where",
+          [
+            "!~",
+            [
+              "$path",
+              "given",
+              false
+            ],
+            [
+              "$path",
+              "family",
+              false
+            ]
+          ]
+        ]
+      ],
+      "evaluate": [
+        {
+          "given": [
+            "beve",
+            "ave",
+            "eve"
+          ],
+          "family": [
+            "15.9"
+          ]
+        },
+        {
+          "given": [
+            "ever",
+            "other"
+          ],
+          "family": [
+            "aeve",
+            "other"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "c"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "c"
+          ]
+        },
+        {
+          "given": [
+            "http://loinc.org"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "start": {
+      "resourceType": "Patient",
+      "birthDate": "2005",
+      "name": [
+        {
+          "given": [
+            "beve",
+            "ave",
+            "eve"
+          ],
+          "family": [
+            "15.9"
+          ]
+        },
+        {
+          "given": [
+            "eve",
+            "other"
+          ],
+          "family": [
+            "other",
+            "eve"
+          ]
+        },
+        {
+          "given": [
+            "ever",
+            "other"
+          ],
+          "family": [
+            "aeve",
+            "other"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "c"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "c"
+          ]
+        },
+        {
+          "given": [
+            "http://loinc.org"
+          ]
+        }
+      ]
+    },
+    "path": "Patient.name.where(given = %loinc)",
+    "result": {
+      "parse": [
+        [
+          "$path",
+          "Patient",
+          false
+        ],
+        [
+          "$path",
+          "name",
+          false
+        ],
+        [
+          "$where",
+          [
+            "=",
+            [
+              "$path",
+              "given",
+              false
+            ],
+            [
+              "$lookup",
+              "loinc"
+            ]
+          ]
+        ]
+      ],
+      "evaluate": [
+        {
+          "given": [
+            "http://loinc.org"
+          ]
+        }
+      ]
+    }
+  }
+]

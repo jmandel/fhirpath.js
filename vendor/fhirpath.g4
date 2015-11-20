@@ -44,7 +44,7 @@ param_list returns [ret]: {var ret = [];} expr {ret.push($expr.ret)} (',' expr {
 fp_const returns [ret]: STRING {$ret = ["$"+"constant",  $STRING.text.slice(1,-1)]} |
        '-'? NUMBER  {$ret = ["$"+"constant", JSON.parse($NUMBER.text)]} |
        BOOL {$ret = ["$"+"constant", JSON.parse($BOOL.text)]}|
-       CONST {$ret = ["$"+"lookup", "'"+$CONST.text+"'"]} ;
+       CONST {$ret = ["$"+"lookup", $CONST.text.slice(1)]} ;
 
 
 // Lexical rules

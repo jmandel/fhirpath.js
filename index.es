@@ -27,13 +27,26 @@ var coerce = {
     }
 }
 
+Array.prototype.flatMap = function(lambda) {
+    return Array.prototype.concat.apply([], this.map(lambda));
+}
+
+
 var applyToEach = (fn) => (coll, ...rest) => {
     return coll.flatMap(item =>fn.apply(null, [item].concat(rest)))
 }
 
 var resolveArguments = (fn) => (coll, ...rest) => {
-    return fn.apply(null, [coll].concat(rest.map(i => execute(coll, i))))
+    return fn.apply(null, [coll].concat(rest.map(i => evaluate(coll, i))))
 }
+
+var uniqueValueMap = (rows) => 
+    rows.reduce((all, val)=>{
+        all[JSON.stringify(val)]=true
+        return all
+    }, {})
+
+var countUniqueValues = (rows)=> Object.keys(uniqueValueMap(rows)).length
 
 var allPaths = (item)=>[item]
 .concat(util.isArray(item) ? item.flatMap(allPaths) : [])
@@ -64,7 +77,7 @@ var functionBank = {
 
     }),
     "$where": applyToEach((item, conditions) =>
-        coerce.boolean(execute([item], conditions)) ? [item] : []
+        coerce.boolean(evaluate([item], conditions)) ? [item] : []
     ),
     "$constant": (_, val)=>{
         return [val]
@@ -89,15 +102,21 @@ var functionBank = {
         [functionBank.$where(coll, conditions).length === coll.length],
     "$any": (coll, conditions) =>
         [functionBank.$where(coll, conditions).length > 0],
-    "$count": (coll) => {
-        return [coll.length]
-    },
+    "$count": (coll) => [coll.length],
+    "$lookup": (_, tag) => [lookup(tag)],
+
     // TODO how does asInteger convert "5.6", or *numbers* e.g. from count()?
     "$asInteger": resolveArguments((coll)=> {
         var val = coerce.integer(coll)
         return isNaN(val) ? [] : [val]
     }),
-    // TODO startsWith probably needs an argument
+    "$distinct":(coll, ...rest)=>{
+        var ret = coll.length === countUniqueValues(
+            coll.map((item)=> rest.map((path)=> evaluate([item], path))))
+        console.log("distinct", coll.length, ret)
+     
+    },
+   // TODO startsWith probably needs an argument
     // and why does .startsWith act as a filter, while .matches returns a boolean?
 }
 
@@ -108,6 +127,7 @@ var whenSingle = (fn)=> (lhs, rhs) => {
 
 var operatorBank = {
     "=": (lhs, rhs) => [JSON.stringify(lhs)===JSON.stringify(rhs)],
+    "!=": (lhs, rhs) => operatorBank["="](lhs, rhs).map(x=>!x),
     "|": (lhs, rhs) => lhs.concat(rhs),
     "+": whenSingle((lhs, rhs)=>{
         if (typeof lhs !== typeof rhs) return []
@@ -124,38 +144,68 @@ var operatorBank = {
     "and": (lhs, rhs) => [coerce.boolean(lhs) && coerce.boolean(rhs)],
     "or": (lhs, rhs) => [coerce.boolean(lhs) || coerce.boolean(rhs)],
     "xor": (lhs, rhs) => [coerce.boolean(lhs) !== coerce.boolean(rhs)],
-}
-
-Array.prototype.flatMap = function(lambda) {
-    return Array.prototype.concat.apply([], this.map(lambda));
+    "in": (lhs, rhs) => {
+        let lhsMap = uniqueValueMap(lhs)
+        let rhsMap = uniqueValueMap(rhs)
+        return [Object.keys(lhsMap).every((k)=> k in rhsMap)]
+    },
+    "~": (lhs, rhs)=> [
+        JSON.stringify(lhs.map(JSON.stringify).sort()) ===
+        JSON.stringify(rhs.map(JSON.stringify).sort())],
+    "!~": (lhs, rhs)=> operatorBank["~"](lhs, rhs).map(x=>!x),
+    ">": whenSingle((lhs, rhs)=> [lhs[0] > rhs[0]]),
+    "<": whenSingle((lhs, rhs)=> [lhs[0] < rhs[0]]),
+    ">=": whenSingle((lhs, rhs)=> [lhs[0] >= rhs[0]]),
+    "<=": whenSingle((lhs, rhs)=> [lhs[0] <= rhs[0]]),
 }
 
 //ex = process.argv[2];
 
-function execute(coll, tree){
+function evaluate(coll, tree){
 
     if (!util.isArray(tree[0])){
-        return execute(coll, [tree]);
+        return evaluate(coll, [tree]);
     }
 
     return tree.reduce((coll, cur)=>{
         if (util.isArray(cur[0])){
-            return [coll].concat(execute(coll, cur[0]))
+            return [coll].concat(evaluate(coll, cur[0]))
         }
-        var fnName = cur[0];
-        var fn = functionBank[fnName];
-        if (fn)
-            return fn.apply(null, [coll].concat(cur.slice(1)))
 
+        let fnName = cur[0];
+        let fn = functionBank[fnName];
+        if (fn) {
+            return fn.apply(null, [coll].concat(cur.slice(1)))
+        }
+
+        console.log("exec op", fnName, cur[1], cur[2])
         return operatorBank[fnName](
-            execute(coll, cur[1]),
-            execute(coll, cur[2]))
+            evaluate(coll, cur[1]),
+            evaluate(coll, cur[2]))
     }, coll);
 
 }
 
-module.exports = (resource, path) => {
-    var tree = fhirpath.parse(path);
-    var result = execute([resource], tree);
-    return [tree, result];
+var lookupTable = {
+  "sct": "http://snomed.info/sct",
+  "loinc": "http://loinc.org",
+  "ucum": "http://unitsofmeasure.org",
+  "vs-": "http://hl7.org/fhir/ValueSet/",
+  "ext-": "http://hl7.org/fhir/StructureDefinition/"
 }
+
+var lookup = (tag) => {
+    if (lookupTable[tag]){
+        return lookupTable[tag]
+    }
+
+    let m = tag.match(/(.*?-)(.*)/)
+    if (m){
+        return lookupTable[m[1]] + m[2]
+    }
+
+    throw new Error("Undefined lookup tag: %"+tag)
+}
+
+var parse = module.exports.parse = (path) => fhirpath.parse(path)
+module.exports.evaluate = (resource, path) => evaluate([resource], parse(path))

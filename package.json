@@ -1,13 +1,15 @@
 {
-  "name": "fhir-path",
-  "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
+  "name": "fhirpath.js",
+  "version": "0.0.2",
+  "description": "JavaScript implementation of the FHIR path language",
+  "main": "build/bundle.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/babel-node --presets 'es2015' test-case-runner.js",
+    "generate-tests": "./node_modules/.bin/babel-node --presets 'es2015' test-case-generator.js --write-all"
   },
   "author": "Josh Mandel",
   "license": "Apache-2.0",
+  "files": ["build"],
   "devDependencies": {
     "antlr4": "^4.5.2",
     "babel-cli": "^6.2.0",
