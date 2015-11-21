@@ -10,7 +10,8 @@ var pt = module.exports.pt = {
     { given: ["a"], family: ["bk"]},
     { given: ["c"], family: ["bk"]},
     { given: ["a"], family: ["c"]},
-    { given: ["http://loinc.org"]}
+    { given: ["http://loinc.org"]},
+    { given: ["2005"]}
   ]
 }
 
@@ -22,7 +23,8 @@ var examples = module.exports.examples = [
   "Patient.name.where('eve' in given)",
   "Patient.name.where(given ~ family)",
   "Patient.name.where(given !~ family)",
-  "Patient.name.where(given = %loinc)"
+  "Patient.name.where(given = %loinc)",
+  "Patient.name.where(given=$context.birthDate).given"
 ]
 console.log("fp", Object.keys(fp), typeof fp.evaluate)
 
