@@ -62,6 +62,11 @@
           "given": [
             "http://loinc.org"
           ]
+        },
+        {
+          "given": [
+            "2005"
+          ]
         }
       ]
     },
@@ -155,6 +160,11 @@
           "given": [
             "http://loinc.org"
           ]
+        },
+        {
+          "given": [
+            "2005"
+          ]
         }
       ]
     },
@@ -247,6 +257,11 @@
         {
           "given": [
             "http://loinc.org"
+          ]
+        },
+        {
+          "given": [
+            "2005"
           ]
         }
       ]
@@ -346,6 +361,11 @@
           "given": [
             "http://loinc.org"
           ]
+        },
+        {
+          "given": [
+            "2005"
+          ]
         }
       ]
     },
@@ -428,6 +448,11 @@
         {
           "given": [
             "http://loinc.org"
+          ]
+        },
+        {
+          "given": [
+            "2005"
           ]
         }
       ]
@@ -548,6 +573,11 @@
           "given": [
             "http://loinc.org"
           ]
+        },
+        {
+          "given": [
+            "2005"
+          ]
         }
       ]
     },
@@ -658,6 +688,11 @@
           "given": [
             "http://loinc.org"
           ]
+        },
+        {
+          "given": [
+            "2005"
+          ]
         }
       ]
     },
@@ -740,6 +775,11 @@
           "given": [
             "http://loinc.org"
           ]
+        },
+        {
+          "given": [
+            "2005"
+          ]
         }
       ]
     }
@@ -807,6 +847,11 @@
           "given": [
             "http://loinc.org"
           ]
+        },
+        {
+          "given": [
+            "2005"
+          ]
         }
       ]
     },
@@ -845,6 +890,123 @@
             "http://loinc.org"
           ]
         }
+      ]
+    }
+  },
+  {
+    "start": {
+      "resourceType": "Patient",
+      "birthDate": "2005",
+      "name": [
+        {
+          "given": [
+            "beve",
+            "ave",
+            "eve"
+          ],
+          "family": [
+            "15.9"
+          ]
+        },
+        {
+          "given": [
+            "eve",
+            "other"
+          ],
+          "family": [
+            "other",
+            "eve"
+          ]
+        },
+        {
+          "given": [
+            "ever",
+            "other"
+          ],
+          "family": [
+            "aeve",
+            "other"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "c"
+          ],
+          "family": [
+            "bk"
+          ]
+        },
+        {
+          "given": [
+            "a"
+          ],
+          "family": [
+            "c"
+          ]
+        },
+        {
+          "given": [
+            "http://loinc.org"
+          ]
+        },
+        {
+          "given": [
+            "2005"
+          ]
+        }
+      ]
+    },
+    "path": "Patient.name.where(given=$context.birthDate).given",
+    "result": {
+      "parse": [
+        [
+          "$path",
+          "Patient",
+          false
+        ],
+        [
+          "$path",
+          "name",
+          false
+        ],
+        [
+          "$where",
+          [
+            "=",
+            [
+              "$path",
+              "given",
+              false
+            ],
+            [
+              [
+                "$axis",
+                "$context"
+              ],
+              [
+                "$path",
+                "birthDate",
+                false
+              ]
+            ]
+          ]
+        ],
+        [
+          "$path",
+          "given",
+          false
+        ]
+      ],
+      "evaluate": [
+        "2005"
       ]
     }
   }
