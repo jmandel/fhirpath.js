@@ -207,7 +207,7 @@ function run(coll, context){
 
 }
 
-var defaultLookupTable = {
+var defaultLookups = {
   "sct": "http://snomed.info/sct",
   "loinc": "http://loinc.org",
   "ucum": "http://unitsofmeasure.org",
@@ -230,14 +230,16 @@ var lookup = (tag, context) => {
                      We know: ${Object.keys(context.lookups)}`)
 }
 
-let parse = module.exports.parse = (path) => fhirpath.parse(path)
-let evaluate = module.exports.evaluate = (resource, path, lookups) => run(
-    [resource],
-    {
-        tree: parse(path),
-        lookups: Object.assign({}, lookups, defaultLookupTable),
+let withConstants = (lookups) =>
+({
+    parse: (path) => fhirpath.parse(path),
+    evaluate: (resource, path, localLookups) =>
+    run( [resource], {
+        tree: fhirpath.parse(path),
+        lookups: Object.assign({}, lookups||{},localLookups||{}, defaultLookups),
         root: resource
     })
+})
 
-module.exports.withConstants = (lookups) => (resource, path) =>
-    evaluate([resource], path, lookups)
+module.exports = withConstants({})
+module.exports.withConstants = withConstants
