@@ -7,8 +7,7 @@ To use it, `npm install fhirpath.js`. Then:
    var result = fp.evaluate({      // the target to evaluate against
      "a": 1,
      "b": [2, 3]
-   },
-   "a | b | a")                    // the path expression to evaluate
+   }, "a | b | a")                    // the path expression to evaluate
 
    assert.deepEqual(result, [1, 2, 3, 1])
 ```
@@ -19,9 +18,9 @@ To add you own custom constants to the lookup table, pass along a third argument
    var result = fp.evaluate({      // the target to evaluate against
      "a": "some great value",
      "b": [2, 3]
-   },
-   "a=%my-constant",
-   {"my-constant": "some great value"})
+   }, "a=%my-constant", {
+     "my-constant": "some great value"
+   })
    
    assert.deepEqual(result, [true])
 ```
@@ -34,8 +33,7 @@ If passing a lookup table with every call gets tedious, you can create a new exe
    var result = myfp.evaluate({      // the target to evaluate against
      "a": "some great value",
      "b": [2, 3]
-   },
-   "a=%my-constant")
+   }, "a=%my-constant")
    
    assert.deepEqual(result, [true])
 ```
