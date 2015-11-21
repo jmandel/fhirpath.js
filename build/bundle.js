@@ -159,37 +159,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }) : item;
 	        if (axis === "**") return allPaths(item).slice(1);
 	        if (axis === "$context") return context.root;
-	    }),
-	    "$where": applyToEach(function (item, context, conditions) {
-	        return coerce.boolean(run([item], withTree(context, conditions))) ? [item] : [];
-	    }),
-	    "$constant": function $constant(_, context, val) {
-	        return [val];
-	    },
-	    "$first": function $first(coll) {
-	        return coll.slice(0, 1);
-	    },
-	    "$last": function $last(coll) {
-	        return coll.slice(-1);
-	    },
-	    "$tail": function $tail(coll) {
-	        return coll.slice(1);
-	    },
-	    "$item": resolveArguments(function (coll, context, i) {
-	        return coll.slice(i, i + 1);
-	    }),
-	    "$skip": resolveArguments(function (coll, context, i) {
-	        return coll.slice(i);
-	    }),
-	    "$take": resolveArguments(function (coll, context, i) {
-	        return coll.slice(0, i);
-	    }),
-	    // TODO: Clarify what collections are accepted by substring
-	    "$substring": resolveArguments(function (coll, context, start, count) {
-	        if (coll.length !== 1) return [];
-	        if (typeof coll[0] !== "string") return [];
-	        var input = coll[0];
-	        var end = count !== undefined ? start + count : input.length;
+	        throw new Error("Unsupported asis: " + axis);
 	    }),
 	    "$where": applyToEach(function (item, context, conditions) {
 	        return coerce.boolean(run([item], withTree(context, conditions))) ? [item] : [];

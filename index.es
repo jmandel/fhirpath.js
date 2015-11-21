@@ -76,27 +76,7 @@ var functionBank = {
             return allPaths(item).slice(1)
         if (axis === "$context")
             return context.root
-
-    }),
-    "$where": applyToEach((item, context, conditions) =>
-        coerce.boolean(run([item], withTree(context,conditions))) ? [item] : []
-    ),
-    "$constant": (_, context, val)=>{
-        return [val]
-    },
-    "$first": (coll)=> coll.slice(0,1),
-    "$last": (coll)=> coll.slice(-1),
-    "$tail": (coll)=> coll.slice(1),
-    "$item": resolveArguments((coll, context, i) => coll.slice(i,i+1)),
-    "$skip": resolveArguments((coll, context, i) => coll.slice(i)),
-    "$take": resolveArguments((coll, context, i) => coll.slice(0,i)),
-    // TODO: Clarify what collections are accepted by substring
-    "$substring": resolveArguments((coll, context, start, count) => {
-        if (coll.length !== 1) return []
-        if (typeof coll[0] !== "string") return []
-        var input = coll[0]
-        var end = count !== undefined ? start + count : input.length
-
+        throw new Error("Unsupported asis: " + axis)
     }),
     "$where": applyToEach((item, context, conditions) =>
         coerce.boolean(run([item], withTree(context,conditions))) ? [item] : []
