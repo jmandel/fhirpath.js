@@ -1,6 +1,7 @@
 var antlr4 = require('antlr4');
 var fhirpath = require('./fhirpath');
 var util = require('util');
+
 var coerce = {
     integer: function(v){
         if (!util.isArray(v)) {
@@ -31,14 +32,14 @@ Array.prototype.flatMap = function(lambda) {
     return Array.prototype.concat.apply([], this.map(lambda));
 }
 
-
-var applyToEach = (fn) => (coll, ...rest) => {
-    return coll.flatMap(item =>fn.apply(null, [item].concat(rest)))
+var applyToEach = (fn) => (coll, context, ...rest) => {
+    return coll.flatMap(item =>fn.apply(null, [item, context].concat(rest)))
 }
 
-var resolveArguments = (fn) => (coll, ...rest) => {
-    return fn.apply(null, [coll].concat(rest.map(i => evaluate(coll, i))))
-}
+var resolveArguments = (fn) => (coll, context, ...rest) =>
+    fn.apply(null, [coll, context]
+                    .concat(rest.map(i =>
+                                     run(coll, withTree(context,i)))))
 
 var uniqueValueMap = (rows) => 
     rows.reduce((all, val)=>{
@@ -53,11 +54,10 @@ var allPaths = (item)=>[item]
 .concat( typeof item === 'object' && !util.isArray(item)?
         Object
         .keys(item)
-        .reduce((coll, k)=> coll.concat(allPaths(item[k])) , []) : []
-       )
+        .reduce((coll, k)=> coll.concat(allPaths(item[k])) , []) : [])
 
 var functionBank = {
-    "$path": applyToEach((item, segment, recurse)=>{
+    "$path": applyToEach((item, context, segment, recurse)=>{
         if (item.resourceType && item.resourceType === segment){
             return item
         }
@@ -68,7 +68,7 @@ var functionBank = {
         }
         return segments.flatMap(s=>item[s]).filter(x=> !!x)
     }),
-    "$axis": applyToEach((item, axis)=>{
+    "$axis": applyToEach((item, context, axis)=>{
         if (axis === "*")
             return (typeof item === "object") ? 
                 Object.keys(item).flatMap(s=>item[s]).filter(x=> !!x) : item
@@ -76,20 +76,20 @@ var functionBank = {
             return allPaths(item).slice(1)
 
     }),
-    "$where": applyToEach((item, conditions) =>
-        coerce.boolean(evaluate([item], conditions)) ? [item] : []
+    "$where": applyToEach((item, context, conditions) =>
+        coerce.boolean(run([item], withTree(context,conditions))) ? [item] : []
     ),
-    "$constant": (_, val)=>{
+    "$constant": (_, context, val)=>{
         return [val]
     },
     "$first": (coll)=> coll.slice(0,1),
     "$last": (coll)=> coll.slice(-1),
     "$tail": (coll)=> coll.slice(1),
-    "$item": resolveArguments((coll, i) => coll.slice(i,i+1)),
-    "$skip": resolveArguments((coll, i) => coll.slice(i)),
-    "$take": resolveArguments((coll, i) => coll.slice(0,i)),
+    "$item": resolveArguments((coll, context, i) => coll.slice(i,i+1)),
+    "$skip": resolveArguments((coll, context, i) => coll.slice(i)),
+    "$take": resolveArguments((coll, context, i) => coll.slice(0,i)),
     // TODO: Clarify what collections are accepted by substring
-    "$substring": resolveArguments((coll, start, count) => {
+    "$substring": resolveArguments((coll, context, start, count) => {
         if (coll.length !== 1) return []
         if (typeof coll[0] !== "string") return []
         var input = coll[0]
@@ -98,26 +98,26 @@ var functionBank = {
     }),
     "$empty": (coll)=>[coll.length === 0],
     "$not": (coll) => [!coerce.boolean(coll)],
-    "$all": (coll, conditions) =>
+    "$all": (coll, context, conditions) =>
         [functionBank.$where(coll, conditions).length === coll.length],
-    "$any": (coll, conditions) =>
-        [functionBank.$where(coll, conditions).length > 0],
+    "$any": (coll, context, conditions) =>
+        [functionBank.$where(coll, context, conditions).length > 0],
     "$count": (coll) => [coll.length],
-    "$lookup": (_, tag) => [lookup(tag)],
+    "$lookup": (coll, context, tag) => [lookup(tag, context)],
 
     // TODO how does asInteger convert "5.6", or *numbers* e.g. from count()?
-    "$asInteger": resolveArguments((coll)=> {
-        var val = coerce.integer(coll)
+    "$asInteger": resolveArguments((coll, context)=> {
+        let val = coerce.integer(coll)
         return isNaN(val) ? [] : [val]
     }),
-    "$distinct":(coll, ...rest)=>{
-        var ret = coll.length === countUniqueValues(
-            coll.map((item)=> rest.map((path)=> evaluate([item], path))))
-        console.log("distinct", coll.length, ret)
-     
-    },
+    "$distinct":(coll, context, ...rest)=>
+        [coll.length ===
+            countUniqueValues(coll
+                              .map((item) =>
+                                   rest.map((path) =>
+                                            run([item], withTree(context, path)))))],
    // TODO startsWith probably needs an argument
-    // and why does .startsWith act as a filter, while .matches returns a boolean?
+   // and why does .startsWith act as a filter, while .matches returns a boolean?
 }
 
 var whenSingle = (fn)=> (lhs, rhs) => {
@@ -159,34 +159,33 @@ var operatorBank = {
     "<=": whenSingle((lhs, rhs)=> [lhs[0] <= rhs[0]]),
 }
 
-//ex = process.argv[2];
+var withTree = (context, tree) => Object.assign({}, context, {tree: tree})
 
-function evaluate(coll, tree){
+function run(coll, context){
 
-    if (!util.isArray(tree[0])){
-        return evaluate(coll, [tree]);
+    if (!util.isArray(context.tree[0])){
+        return run(coll, withTree(context, [context.tree]));
     }
 
-    return tree.reduce((coll, cur)=>{
+    return context.tree.reduce((coll, cur)=>{
         if (util.isArray(cur[0])){
-            return [coll].concat(evaluate(coll, cur[0]))
+            return [coll].concat(run(coll, withTree(context, cur[0])))
         }
 
         let fnName = cur[0];
         let fn = functionBank[fnName];
         if (fn) {
-            return fn.apply(null, [coll].concat(cur.slice(1)))
+            return fn.apply(null, [coll, context].concat(cur.slice(1)))
         }
 
-        console.log("exec op", fnName, cur[1], cur[2])
         return operatorBank[fnName](
-            evaluate(coll, cur[1]),
-            evaluate(coll, cur[2]))
+            run(coll, withTree(context, cur[1])),
+            run(coll, withTree(context, cur[2])))
     }, coll);
 
 }
 
-var lookupTable = {
+var defaultLookupTable = {
   "sct": "http://snomed.info/sct",
   "loinc": "http://loinc.org",
   "ucum": "http://unitsofmeasure.org",
@@ -194,18 +193,28 @@ var lookupTable = {
   "ext-": "http://hl7.org/fhir/StructureDefinition/"
 }
 
-var lookup = (tag) => {
-    if (lookupTable[tag]){
-        return lookupTable[tag]
+var lookup = (tag, context) => {
+
+    if (context.lookups[tag]){
+        return context.lookups[tag]
     }
 
     let m = tag.match(/(.*?-)(.*)/)
-    if (m){
-        return lookupTable[m[1]] + m[2]
+    if (m && context.lookups[m[1]]){
+        return context.lookups[m[1]] + m[2]
     }
 
-    throw new Error("Undefined lookup tag: %"+tag)
+    throw new Error(`Undefined lookup tag: %${tag}.
+                     We know: ${Object.keys(context.lookups)}`)
 }
 
-var parse = module.exports.parse = (path) => fhirpath.parse(path)
-module.exports.evaluate = (resource, path) => evaluate([resource], parse(path))
+let parse = module.exports.parse = (path) => fhirpath.parse(path)
+let evaluate = module.exports.evaluate = (resource, path, lookups) => run(
+    [resource],
+    {
+        tree: parse(path),
+        lookups: Object.assign({}, lookups, defaultLookupTable)
+    })
+
+module.exports.withConstants = (lookups) => (resource, path) =>
+    evaluate([resource], path, lookups)
