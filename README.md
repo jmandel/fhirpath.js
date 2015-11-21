@@ -1,6 +1,6 @@
 ## FHIR Path
 
-To use it, "npm install fhirpath.js". Then:
+To use it, `npm install fhirpath.js`. Then:
 
 ```js
    var fp = require('fhirpath.js')
