@@ -13,6 +13,10 @@ To use it, "npm install fhirpath.js". Then:
    assert.deepEqual(result, [1, 2, 3, 1])
 ```
 
+## Try it
+
+Live demo at https://niquola.github.io/fhirpath-demo/#/
+
 ## Develop it
 
 Generate the lexer and parser from the included Antlr grammer via:
