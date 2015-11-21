@@ -27,7 +27,7 @@ To add you own custom constants to the lookup table, pass along a third argument
 
 If passing a lookup table with every call gets tedious, you can create a new execution context with the table baked in:
 
-```
+```js
    var myfp = fp.withConstants({"my-constant": "some great value"})
    
    var result = myfp.evaluate({      // the target to evaluate against
