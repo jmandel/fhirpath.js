@@ -1,4 +1,4 @@
-## FHIR Path
+## fhirpath.js
 
 To use it, `npm install fhirpath.js`. Then:
 
